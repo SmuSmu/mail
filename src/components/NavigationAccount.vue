@@ -38,9 +38,9 @@
 			<ActionText v-if="!account.isUnified" icon="icon-info" :title="t('mail', 'Quota')">
 				{{ quotaText }}
 			</ActionText>
-			<ActionRouter :to="settingsRoute" icon="icon-settings">
+			<ActionButton icon="icon-settings" @click="showAccountSettings" @shortkey="toggleAccountSettings">
 				{{ t('mail', 'Account settings') }}
-			</ActionRouter>
+			</ActionButton>
 			<ActionCheckbox
 				:checked="account.showSubscribedOnly"
 				:disabled="savingShowOnlySubscribed"
@@ -64,13 +64,13 @@
 				{{ t('mail', 'Remove account') }}
 			</ActionButton>
 		</template>
+		<AccountSettings v-if="displayAccountSettings" @close="closeAccountSettings" />
 	</AppNavigationItem>
 </template>
 
 <script>
 import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
 import AppNavigationIconBullet from '@nextcloud/vue/dist/Components/AppNavigationIconBullet'
-import ActionRouter from '@nextcloud/vue/dist/Components/ActionRouter'
 import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import ActionCheckbox from '@nextcloud/vue/dist/Components/ActionCheckbox'
 import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
@@ -81,13 +81,14 @@ import { generateUrl } from '@nextcloud/router'
 import { calculateAccountColor } from '../util/AccountColor'
 import logger from '../logger'
 import { fetchQuota } from '../service/AccountService'
+import AccountSettings from '../views/AccountSettings'
 
 export default {
 	name: 'NavigationAccount',
 	components: {
+		AccountSettings,
 		AppNavigationItem,
 		AppNavigationIconBullet,
-		ActionRouter,
 		ActionButton,
 		ActionCheckbox,
 		ActionInput,
@@ -121,19 +122,12 @@ export default {
 			quota: undefined,
 			editing: false,
 			showSaving: false,
+			displayAccountSettings: false,
 		}
 	},
 	computed: {
 		visible() {
 			return this.account.isUnified !== true && this.account.visible !== false
-		},
-		settingsRoute() {
-			return {
-				name: 'accountSettings',
-				params: {
-					accountId: this.account.id,
-				},
-			}
 		},
 		firstMailboxRoute() {
 			return {
@@ -268,6 +262,25 @@ export default {
 			} else {
 				this.quota = quota
 			}
+		},
+		/**
+		 * Hide the account settings overview
+		 */
+		closeAccountSettings() {
+			this.displayAccountSettings = false
+		},
+		/**
+		 * Toggles the account settings overview
+		 */
+		toggleAccountSettings() {
+			this.displayAccountSettings = !this.displayAccountSettings
+		},
+		/**
+		 * Shows the account settings
+		 */
+		showAccountSettings() {
+			this.displayAccountSettings = true
+
 		},
 	},
 }

@@ -1,57 +1,50 @@
 <template>
-	<Content app-name="mail">
-		<Navigation />
-		<AppContent>
-			<div class="section">
-				<h2>{{ t('mail', 'Account settings') }}</h2>
-				<p>
-					<strong>{{ displayName }}</strong> &lt;{{ email }}&gt;
-					<a
-						v-if="!account.provisioned"
-						class="button icon-rename"
-						href="#account-form"
-						:title="t('mail', 'Change name')" />
-				</p>
-				<AliasSettings v-if="!account.provisioned" :account="account" />
+	<Modal
+		size="full"
+		:title="t('mail', 'Account settings')"
+		@close="$emit('close')">
+		<h2>{{ t('mail', 'Account settings') }}</h2>
+		<p>
+			<strong>{{ displayName }}</strong> &lt;{{ email }}&gt;
+			<a
+				v-if="!account.provisioned"
+				class="button icon-rename"
+				href="#account-form"
+				:title="t('mail', 'Change name')" />
+		</p>
+		<AliasSettings v-if="!account.provisioned" :account="account" />
+		<SignatureSettings :account="account" />
+		<EditorSettings :account="account" />
+		<div v-if="!account.provisioned" class="section">
+			<h2>{{ t('mail', 'Mail server') }}</h2>
+			<div id="mail-settings">
+				<AccountForm
+					:key="account.accountId"
+					:display-name="displayName"
+					:email="email"
+					:save="onSave"
+					:account="account" />
 			</div>
-			<SignatureSettings :account="account" />
-			<EditorSettings :account="account" />
-			<div v-if="!account.provisioned" class="section">
-				<h2>{{ t('mail', 'Mail server') }}</h2>
-				<div id="mail-settings">
-					<AccountForm
-						:key="account.accountId"
-						:display-name="displayName"
-						:email="email"
-						:save="onSave"
-						:account="account" />
-				</div>
-			</div>
-		</AppContent>
-	</Content>
+		</div>
+	</Modal>
 </template>
 
 <script>
-import AppContent from '@nextcloud/vue/dist/Components/AppContent'
-import Content from '@nextcloud/vue/dist/Components/Content'
-
 import AccountForm from '../components/AccountForm'
 import EditorSettings from '../components/EditorSettings'
 import Logger from '../logger'
-import Navigation from '../components/Navigation'
 import SignatureSettings from '../components/SignatureSettings'
 import AliasSettings from '../components/AliasSettings'
+import Modal from '@nextcloud/vue/dist/Components/Modal'
 
 export default {
 	name: 'AccountSettings',
 	components: {
 		AccountForm,
 		AliasSettings,
-		AppContent,
-		Content,
 		EditorSettings,
-		Navigation,
 		SignatureSettings,
+		Modal,
 	},
 	computed: {
 		menu() {
@@ -96,5 +89,13 @@ export default {
 	&:focus {
 		opacity: 1;
 	}
+}
+::v-deep .modal-container {
+	display: block;
+	overflow: scroll;
+	transition: transform 300ms ease;
+	border-radius: var(--border-radius-large);
+	box-shadow: 0 0 40px rgba(0,0,0,0.2);
+	padding: 30px 70px 20px;
 }
 </style>
