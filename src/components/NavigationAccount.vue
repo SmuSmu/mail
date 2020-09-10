@@ -64,7 +64,7 @@
 				{{ t('mail', 'Remove account') }}
 			</ActionButton>
 		</template>
-		<AccountSettings v-if="displayAccountSettings" @close="closeAccountSettings" />
+		<AccountSettings v-if="displayAccountSettings" :account="account" @close="closeAccountSettings" />
 	</AppNavigationItem>
 </template>
 

@@ -67,12 +67,15 @@ export default {
 		SignatureSettings,
 		Modal,
 	},
+	props: {
+		account: {
+			type: Object,
+			required: true,
+		},
+	},
 	computed: {
 		menu() {
 			return this.buildMenu()
-		},
-		account() {
-			return this.$store.getters.getAccount(this.$route.params.accountId)
 		},
 		displayName() {
 			return this.$store.getters.getAccount(this.$route.params.accountId).name
