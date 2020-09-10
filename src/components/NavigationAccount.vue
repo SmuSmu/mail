@@ -81,18 +81,18 @@ import { generateUrl } from '@nextcloud/router'
 import { calculateAccountColor } from '../util/AccountColor'
 import logger from '../logger'
 import { fetchQuota } from '../service/AccountService'
-import AccountSettings from '../views/AccountSettings'
+import AccountSettings from './AccountSettings'
 
 export default {
 	name: 'NavigationAccount',
 	components: {
-		AccountSettings,
 		AppNavigationItem,
 		AppNavigationIconBullet,
 		ActionButton,
 		ActionCheckbox,
 		ActionInput,
 		ActionText,
+		AccountSettings,
 	},
 	props: {
 		account: {
