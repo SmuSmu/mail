@@ -78,10 +78,10 @@ export default {
 			return this.buildMenu()
 		},
 		displayName() {
-			return this.$store.getters.getAccount(this.$route.params.accountId).name
+			return this.account.name
 		},
 		email() {
-			return this.$store.getters.getAccount(this.$route.params.accountId).emailAddress
+			return this.account.emailAddress
 		},
 	},
 	methods: {
