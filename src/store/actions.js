@@ -406,7 +406,18 @@ export default {
 			return envelopes
 		})
 	},
-	syncEnvelopes({ commit, getters, dispatch }, { mailboxId, query, init = false }) {
+	syncEnvelopesByRole({ commit, getters, dispatch }, { role, accountId, query, init = false, criteria = 'all' }) {
+		const mailboxes = getters.getMailboxes(accountId)
+		mailboxes.forEach(function(mailbox) {
+			if (mailbox.specialRole === role) {
+				return dispatch('syncEnvelopes', {
+					mailboxId: mailbox.databaseId,
+					criteria,
+				})
+			}
+		})
+	},
+	syncEnvelopes({ commit, getters, dispatch }, { mailboxId, query, init = false, criteria = 'all' }) {
 		const mailbox = getters.getMailbox(mailboxId)
 
 		if (mailbox.isUnified) {
@@ -423,6 +434,7 @@ export default {
 										mailboxId: mailbox.databaseId,
 										query,
 										init,
+										criteria,
 									})
 								)
 						)
