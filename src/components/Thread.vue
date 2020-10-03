@@ -20,6 +20,7 @@
 				:envelope="env"
 				:mailbox-id="$route.params.mailboxId"
 				:expanded="expandedThreads.includes(env.databaseId)"
+				@delete="onDelete"
 				@toggleExpand="toggleExpand(env.databaseId)" />
 		</template>
 	</AppContentDetails>
@@ -27,7 +28,7 @@
 
 <script>
 import AppContentDetails from '@nextcloud/vue/dist/Components/AppContentDetails'
-import { prop, uniqBy } from 'ramda'
+import { findIndex, propEq, prop, uniqBy } from 'ramda'
 
 import { getRandomMessageErrorMessage } from '../util/ErrorMessageFactory'
 import Loading from './Loading'
@@ -50,13 +51,11 @@ export default {
 			message: undefined,
 			errorMessage: '',
 			error: undefined,
+			thread: [],
 			expandedThreads: [],
 		}
 	},
 	computed: {
-		thread() {
-			return this.$store.getters.getEnvelopeThread(this.$route.params.threadId)
-		},
 		threadParticipants() {
 			const recipients = this.thread.flatMap(envelope => {
 				return envelope.from.concat(envelope.to).concat(envelope.cc)
@@ -64,12 +63,11 @@ export default {
 			return uniqBy(prop('email'), recipients)
 		},
 		threadSubject() {
-			const thread = this.thread
-			if (thread.length === 0) {
+			if (this.thread.length === 0) {
 				console.warn('thread is empty')
 				return ''
 			}
-			return thread[0].subject
+			return this.thread[0].subject
 		},
 	},
 	watch: {
@@ -91,6 +89,21 @@ export default {
 		this.fetchThread()
 	},
 	methods: {
+		// Update thread and navigate when a ThreadEnvelope is deleted
+		onDelete(threadId) {
+			const idx = findIndex(propEq('databaseId', threadId), this.thread)
+			if (idx === -1) {
+				logger.debug('envelope to delete does not exist in thread')
+				return
+			}
+
+			this.thread.splice(idx, 1)
+
+			// Navigate to next thread when whole current thread has been deleted
+			if (this.thread.length === 0) {
+				this.$emit('delete', threadId)
+			}
+		},
 		toggleExpand(threadId) {
 			if (!this.expandedThreads.includes(threadId)) {
 				console.debug(`expand thread ${threadId}`)
@@ -110,6 +123,7 @@ export default {
 			try {
 				const thread = await this.$store.dispatch('fetchThread', threadId)
 				logger.debug(`thread for envelope ${threadId} fetched`, { thread })
+				this.thread = thread
 				// TODO: add timeout so that envelope isn't flagged when only viewed
 				//       for a few seconds
 				if (threadId !== parseInt(this.$route.params.threadId, 10)) {
