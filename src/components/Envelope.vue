@@ -171,13 +171,14 @@ export default {
 				const recipients = [this.data.to, this.data.cc].flat().map(function(recipient) {
 					return recipient.email
 				})
-				return recipients.length > 0 ? recipients[0] : undefined
+				return recipients.length > 0 ? recipients[0] : 'Blind copy recipients only'
 			}
 
 			// Show sender avatar in other mailbox types
 			if (this.data.from.length > 0) {
 				return this.data.from[0].email
 			} else {
+				console.error('No email found in from field', this.data)
 				return undefined
 			}
 		},
